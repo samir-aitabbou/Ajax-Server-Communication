@@ -1,46 +1,94 @@
-//  Étape 1 — Lancement d’une requête HTTP
-
-// ancien code de compatibilité, aujourd’hui inutile
-// XMLHttpRequest c'est l'objet responsable Pour faire une requête HTTP vers le serveur à l’aide de JavaScript
-if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+...
-    httpRequest = new XMLHttpRequest();
-}
-else if (window.ActiveXObject) { // IE 6 et antérieurs
-    httpRequest = new ActiveXObject("Microsoft.XMLHTTP");
-}
-
-// indiquer à l’objet httpRequest le nom de la fonction JavaScript qui traitera la réponse du serveur.
-httpRequest.onreadystatechange = nomDeLaFonction;
-// ou 
-// httpRequest.onreadystatechange = function() {
-//     // instructions de traitement de la réponse
-// };
-
-// après avoir déclaré ce qui se produit lorsque la réponse est reçue, il s’agit de lancer effectivement la requête
-httpRequest.open('GET', 'http://www.example.org/some.file', true);
-httpRequest.send();
 
 
-    //// Étape 2 — Gestion de la réponse du serveur////
+document.querySelector('.get-jokes').addEventListener('click', getJokes);
 
-//vérifier l’état de la requête
-if (httpRequest.readyState === XMLHttpRequest.DONE) {
-    // tout va bien, la réponse a été reçue
-} else {
-    // pas encore prête
+let chebox1 = document.getElementById('cat1');
+let chebox2 = document.getElementById('cat2');
+
+const boxes = [];
+boxes.push(chebox2,chebox1);
+
+function isChecked(checkbox) {
+    if(checkbox.checked) {
+      return true;
+    }
+    return false;
 }
 
-//Ensuite, vérifiez le code de statut HTTP de la réponse du serveur.
-if (httpRequest.status === 200) {
-    // parfait !
-} else {
-    // il y a eu un problème avec la requête,
-    // par exemple la réponse peut être un code 404 (Non trouvée)
-    // ou 500 (Erreur interne au serveur)
+function genarateURL( ) {
+  let url = 'http://api.icndb.com/jokes/random';
+  let numberOfJokes = document.querySelector('input[type="number"').value;
+  const categories = [];
+
+  boxes.forEach(function (box) {
+     if(isChecked(box)) {
+       categories.push(box.value);
+     }
+  });
+
+  console.log(categories);
+
+
+  if (!(typeof numberOfJokes === 'undefined') && numberOfJokes > 0) {
+    url += '/' + String(numberOfJokes);
+  }
+
+  if(!(typeof categories === 'undefined') && categories.length > 0){
+    url += `?limitTo=[${categories.join(',')}]`
+
+  }
+
+  return url;
+
 }
 
-//vous pouvez traiter à votre guise les données envoyées par le serveur. Il existe deux manières d’accéder à ces données :
-//httpRequest.responseText
-//httpRequest.responseXML
+function getJokes(e) {
 
-      //// Étape 3 — Un exemple simple ////
+  let searchURL = genarateURL();
+
+
+  console.log(number);
+
+  const xhr = new XMLHttpRequest();
+
+  xhr.open('GET', searchURL , true);
+
+  xhr.onload = function() {
+    if(this.status === 200) {
+      const response  = JSON.parse(this.responseText);
+
+      const outputs = [];
+      let output = '';
+      const resVal = response.value;
+        console.log(response);
+      if(response.type === 'success') {
+
+        if(Object.prototype.toString.call(resVal) === '[object Array]') {
+            resVal.forEach(function (joke) {
+                output = `<li class="list-group-item">${joke.joke}</li>`;
+                outputs.push(output);
+
+            });
+        }
+
+
+      } else {
+
+        output = `<li>Something went wrong</li>`;
+
+
+      }
+
+      outputs.forEach(function (item) {
+          document.querySelector('.jokes').innerHTML += item;
+      });
+      console.log(outputs);
+
+    }
+  };
+
+  xhr.send();
+
+  e.preventDefault();
+
+}
