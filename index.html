@@ -1,0 +1,39 @@
+<button id="ajaxButton" type="button">Faire une requête</button>
+
+<script>
+(function() {
+  var httpRequest;
+  document.getElementById("ajaxButton").addEventListener(onclick="makeRequest('test.xml')");
+
+  function makeRequest() {
+    httpRequest = new XMLHttpRequest();
+
+    if (!httpRequest) {
+      alert('Abandon :( Impossible de créer une instance de XMLHTTP');
+      return false;
+    }
+    httpRequest.onreadystatechange = alertContents;
+    httpRequest.open('GET', 'test.html');
+    httpRequest.send();
+  }
+
+ function alertContents(httpRequest) {
+  try {
+    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+      if (httpRequest.status === 200) {
+        var xmldoc = httpRequest.responseXML;
+        var root_node = xmldoc.getElementsByTagName('root').item(0);
+        alert(root_node.firstChild.data);
+      } else {
+        alert("Un problème est survenu au cours de la requête.");
+      }
+    }
+  }
+  catch( e ) {
+    alert("Une exception s’est produite : " + e.description);
+  }
+}
+
+    
+})();
+</script>
